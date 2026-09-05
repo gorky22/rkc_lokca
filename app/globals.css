@@ -141,9 +141,29 @@ img { max-width: 100%; height: auto; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding-left: 24px;
+  padding-right: 24px;
 }
-@media (max-width: 880px) { .cards { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
+@media (max-width: 880px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+    width: auto;
+    margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+@media (max-width: 560px) {
+  .cards {
+    grid-template-columns: 1fr;
+    width: auto;
+    margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
 
 .card { border: 1px solid var(--line); background: #fff; display: flex; flex-direction: column; }
 .card-img { aspect-ratio: 19/10; object-fit: cover; width: 100%; display: block; background: #f3f3f3; }
