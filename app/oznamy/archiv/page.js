@@ -9,7 +9,7 @@ export default function OznamyArchivPage() {
     .all();
 
   return (
-    <>
+    <div className="container page-block">
       <h1 className="page-title">Archív oznamov</h1>
       <div className="entry">
         {oznamy.map((o) => (
@@ -25,6 +25,6 @@ export default function OznamyArchivPage() {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

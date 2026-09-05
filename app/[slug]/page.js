@@ -9,11 +9,11 @@ export default function ContentPage({ params }) {
   if (!page) notFound();
 
   return (
-    <>
+    <div className="container page-block">
       <h1 className="page-title">{page.title}</h1>
       <div className="entry" dangerouslySetInnerHTML={{ __html: page.content }} />
       <EditLink href={`/admin/stranky/${page.slug}`} />
-    </>
+    </div>
   );
 }
 

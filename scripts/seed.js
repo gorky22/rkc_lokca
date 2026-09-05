@@ -11,10 +11,66 @@ const IMPORT = path.join(process.cwd(), 'data', 'import');
 
 function fixContent(html) {
   if (!html) return '';
-  return html
+  return pruneImages(html
     .replace(/https?:\/\/rkclokca\.sk/g, '')
     .replace(/\/wp-content\/uploads\//g, '/assets/uploads/')
-    .replace(/\/wp-content\/gallery\/[^"']*/g, '#'); // gallery originals were not archived
+    .replace(/\/wp-content\/gallery\/[^"']*/g, '#') // gallery originals were not archived
+    .replace(/<img[^>]*src=["']#["'][^>]*>/gi, '')); // ...so drop the images that pointed at them
+}
+
+/**
+ * Archived article pages contain the whole old site (header, menu, footer).
+ * Keep only what sits between the post-content markers, so an article is an
+ * article — not a copy of the navigation.
+ */
+function postBody(html, title = '') {
+  if (!html) return '';
+  const start = html.indexOf('<!-- Post Content -->');
+  const end = html.indexOf('<!-- /Post Content -->');
+  if (start === -1 || end === -1 || end <= start) return html;
+
+  let body = html
+    .slice(start + '<!-- Post Content -->'.length, end)
+    .trim()
+    .replace(/^<h1[^>]*>[\s\S]*?<\/h1>\s*/i, ''); // the page already shows the title
+
+  // Some articles repeat the headline as the first (bold) paragraph.
+  const norm = (t) => t.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+  const first = body.match(/^<p[^>]*>[\s\S]*?<\/p>\s*/i);
+  if (first && title && norm(first[0]) === norm(title)) body = body.slice(first[0].length);
+
+  return body.trim();
+}
+
+const PUBLIC_DIR = path.join(process.cwd(), 'public');
+
+/**
+ * The archive kept only part of the media library, so a lot of <img> tags point
+ * at files that do not exist. Swap in an archived size variant when there is
+ * one (image.jpg -> image-140x80.jpg), otherwise drop the tag — a missing
+ * picture is better than a broken one.
+ */
+function pruneImages(html) {
+  if (!html) return '';
+  return html.replace(/<img[^>]*>/gi, (tag) => {
+    const m = tag.match(/src=["']([^"']+)["']/i);
+    if (!m) return '';
+    const src = m[1];
+    if (!src.startsWith('/')) return tag;
+    if (fs.existsSync(path.join(PUBLIC_DIR, decodeURIComponent(src)))) return tag;
+
+    const dir = path.dirname(src);
+    const ext = path.extname(src);
+    const base = path.basename(src, ext);
+    const absDir = path.join(PUBLIC_DIR, decodeURIComponent(dir));
+    if (fs.existsSync(absDir)) {
+      const variant = fs
+        .readdirSync(absDir)
+        .find((f) => f.startsWith(`${base}-`) && f.endsWith(ext));
+      if (variant) return tag.replace(src, `${dir}/${variant}`);
+    }
+    return '';
+  });
 }
 
 // old WP slug -> new site slug (null = skip, handled elsewhere)
@@ -93,7 +149,7 @@ function main() {
     const date = post.date && post.date.length >= 10 ? post.date.slice(0, 10) : null;
     const created = date ? `${date} 12:00:00` : new Date(Date.now() - i * 86400000).toISOString().slice(0, 19).replace('T', ' ');
     const img = post.img && post.img.includes('/wp-content') ? fixContent(post.img) : '';
-    insNews.run(slug, post.title, fixContent(post.clean), img, created);
+    insNews.run(slug, post.title, fixContent(postBody(post.clean, post.title)), img, created);
     nn++;
   }
   console.log(`News seeded: ${nn}`);

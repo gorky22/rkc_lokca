@@ -15,7 +15,7 @@ export default function GalleryPage() {
     .all();
 
   return (
-    <>
+    <div className="container page-block">
       <h1 className="page-title">Fotogaléria</h1>
       <div className="album-grid">
         {albums.length === 0 && <p>Galéria je zatiaľ prázdna.</p>}
@@ -27,6 +27,6 @@ export default function GalleryPage() {
         ))}
       </div>
       <EditLink href="/admin/galeria" />
-    </>
+    </div>
   );
 }

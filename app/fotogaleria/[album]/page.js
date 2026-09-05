@@ -9,7 +9,7 @@ export default function AlbumPage({ params }) {
   const photos = getDb().prepare('SELECT * FROM photos WHERE album_id = ? ORDER BY id').all(album.id);
 
   return (
-    <>
+    <div className="container page-block">
       <h1 className="page-title">{album.title}</h1>
       <div className="photo-grid">
         {photos.map((p) => (
@@ -18,6 +18,6 @@ export default function AlbumPage({ params }) {
           </a>
         ))}
       </div>
-    </>
+    </div>
   );
 }

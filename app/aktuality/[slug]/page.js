@@ -9,7 +9,7 @@ export default function NewsPost({ params }) {
   if (!post) notFound();
 
   return (
-    <>
+    <div className="container page-block">
       <h1 className="page-title">{post.title}</h1>
       <div className="entry">
         <p style={{ textAlign: 'center', color: '#888' }}>
@@ -18,7 +18,7 @@ export default function NewsPost({ params }) {
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </div>
       <EditLink href={`/admin/aktuality/${post.id}`} />
-    </>
+    </div>
   );
 }
 

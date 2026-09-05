@@ -10,7 +10,7 @@ export default function OznamyPage() {
     .all();
 
   return (
-    <>
+    <div className="container page-block">
       <h1 className="page-title">Oznamy na tento týždeň</h1>
       <div className="entry">
         {oznamy.length === 0 && <p style={{ textAlign: 'center' }}>Momentálne nie sú zverejnené žiadne oznamy.</p>}
@@ -28,6 +28,6 @@ export default function OznamyPage() {
         ))}
       </div>
       <EditLink href="/admin/oznamy" />
-    </>
+    </div>
   );
 }
